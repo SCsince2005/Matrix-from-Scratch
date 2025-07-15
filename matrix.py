@@ -84,6 +84,56 @@ class Matrix:
             for i in range(len(row)):
                 row[i]=n*row[i]
         return self
+    
+    def inverse(self):
+        # Check square
+        n = len(self.data)
+        if not all(len(row) == n for row in self.data):
+            raise ValueError("Matrix must be square!")
+        # Determinant
+        det = self.determinent()
+        if det == 0:
+            raise ValueError("Matrix is singular and cannot be inverted.")
+
+        # 2x2 inverse
+        if n == 2:
+            a, b = self.data[0]
+            c, d = self.data[1]
+            inv = [
+                [d / det, -b / det],
+                [-c / det, a / det]
+            ]
+            return Matrix(inv)
+
+        # 3x3 inverse
+        elif n == 3:
+            m = self.data
+            # Calculate the cofactor matrix elements
+            cof = [
+                [
+                    ((m[1][1]*m[2][2]-m[1][2]*m[2][1])),
+                    -((m[1][0]*m[2][2]-m[1][2]*m[2][0])),
+                    ((m[1][0]*m[2][1]-m[1][1]*m[2][0]))
+                ],
+                [
+                    -((m[0][1]*m[2][2]-m[0][2]*m[2][1])),
+                    ((m[0][0]*m[2][2]-m[0][2]*m[2][0])),
+                    -((m[0][0]*m[2][1]-m[0][1]*m[2][0]))
+                ],
+                [
+                    ((m[0][1]*m[1][2]-m[0][2]*m[1][1])),
+                    -((m[0][0]*m[1][2]-m[0][2]*m[1][0])),
+                    ((m[0][0]*m[1][1]-m[0][1]*m[1][0]))
+                ]
+            ]
+            # Transpose (adjugate)
+            adj = [[cof[j][i] for j in range(3)] for i in range(3)]
+            # Divide by determinant
+            inv = [[adj[i][j] / det for j in range(3)] for i in range(3)]
+            return Matrix(inv)
+
+        else:
+            raise NotImplementedError("Inverse for matrices larger than 3x3 not implemented.")
         
 
 # Basic Matrix Test
@@ -100,3 +150,6 @@ m1.transpose().display()
 print()
 print(m1.determinent())
 m1.scalarMultiply(2).display()
+print()
+inv_m1 = m1.inverse()
+inv_m1.display()
